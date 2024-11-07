@@ -58,6 +58,13 @@ describe('showBookDtls', () => {
 
     it('should return 404 if there book instance is null', async () => {
         const id = '12345';
+        // Mocking the Book model's findOne and populate methods
+        const mockFindOne = jest.fn().mockReturnValue({
+            populate: jest.fn().mockReturnThis(), // Allows method chaining
+            exec: jest.fn().mockResolvedValue(mockBook) // Resolves to your mock book
+        });
+        Book.findOne = mockFindOne;
+
         // Mocking the Book model's findOne method to throw an error
         BookInstance.find = jest.fn().mockReturnValue({
             select: jest.fn().mockReturnThis(), // Select is called here
@@ -71,6 +78,50 @@ describe('showBookDtls', () => {
         expect(res.status).toHaveBeenCalledWith(404);
         expect(res.send).toHaveBeenCalledWith(`Book details not found for book ${id}`);
     });
+
+    it('should return 404 if book is null', async () => {
+        const id = '12345';
+        // Mocking the Book model's findOne and populate methods
+        const mockFindOne = jest.fn().mockReturnValue({
+            populate: jest.fn().mockReturnThis(), // Allows method chaining
+            exec: jest.fn().mockResolvedValue(null) // Resolves to your mock book
+        });
+        Book.findOne = mockFindOne;
+
+        // Mocking the BookInstance model's find and select methods
+        const mockFind = jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnThis(), // Select is called here
+            exec: jest.fn().mockResolvedValue(mockCopies)
+        });
+        BookInstance.find = mockFind;
+
+        // Act
+        await showBookDtls(res as Response, id);
+
+        // Assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(`Book ${id} not found`);
+    });
+
+    it('should return 404 if book id is non-string', async () => {
+        const id = { id: "12345" };
+        await showBookDtls(res as Response, id as any as string);
+
+        // Assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(`Book ${id} not found`);
+    });
+
+    it('should return 404 if book id is non-string', async () => {
+        const id = { id: "12345" };
+        await showBookDtls(res as Response, id as any as string);
+
+        // Assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(`Book ${id} not found`);
+    });
+
+
 
     it('should return 500 if there is an error fetching the book', async () => {
         // Mocking the Book model's findOne method to throw an error

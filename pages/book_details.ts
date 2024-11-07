@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import Book, { IBook }  from '../models/book';
-import BookInstance, { IBookInstance }  from '../models/bookinstance';
+import Book, { IBook } from '../models/book';
+import BookInstance, { IBookInstance } from '../models/bookinstance';
 
 
 // Function to get a book by ID
@@ -26,13 +26,13 @@ export const showBookDtls = async (res: Response, id: string): Promise<void> => 
       getBook(id),
       getBookDtl(id)
     ]);
-    
+
     if (!book) {
       res.status(404).send(`Book ${id} not found`);
       return;
     }
 
-    if(!copies) {
+    if (!copies) {
       res.status(404).send(`Book details not found for book ${id}`);
       return;
     }
