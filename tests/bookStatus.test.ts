@@ -14,7 +14,7 @@ describe("showAllBooksStatus", () => {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
         };
-    })
+    });
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -55,5 +55,22 @@ describe("showAllBooksStatus", () => {
         expect(BookInstance.find().populate).toHaveBeenCalledWith('book');
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.send).toHaveBeenCalledWith([]);
+    });
+
+    it("should return 500 if an error occurs", async () => {
+        // Arrange: Mock the BookInstance model's find and populate methods
+
+        const mockFind = jest.fn().mockReturnValue({
+            populate: jest.fn().mockRejectedValue("Error")
+        });
+        BookInstance.find = mockFind;
+
+        // Act: Call the function to show all books with status 'Available'
+        await showAllBooksStatus(res as Response);
+
+        // Assert: Check if the response is as expected
+        expect(mockFind).toHaveBeenCalledWith({ status: { $eq: "Available" } });
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith("Status not found");
     });
 });
